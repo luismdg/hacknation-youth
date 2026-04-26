@@ -1,9 +1,8 @@
-// gov/sections/ProfilesMap.tsx
 import { useState } from "react";
 import { SectionHeader } from "@/components/layout/PanelShell";
 import {
   HeatMap, HeatLegend, HeatPresetPicker,
-  RegionalGrid, FocusPicker, HeatDashboard, EconometricDataRow, HeatPerformance,
+  RegionalGrid, FocusPicker, HeatDashboard, EconometricDataRow, HeatPerformance, DataSourceBadge,
 } from "@/panels/shared/HeatMap";
 import { HEAT_PRESETS, FOCUS_AREAS, getRegionalIntensity, type HeatPreset, type FocusArea } from "@/panels/shared/seed";
 
@@ -30,7 +29,7 @@ export function GovProfilesMap() {
       <div className="space-y-6 px-8 py-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <HeatLegend baseColor={baseColor} label={`${preset.label} · ${focus.label}`} />
-          <p className="text-[13px] text-muted-foreground">{preset.description}</p>
+          <DataSourceBadge />
         </div>
         {isCountry ? (
           <RegionalGrid regions={regionalData} baseColor={baseColor} height={420} />
