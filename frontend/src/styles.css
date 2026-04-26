@@ -1,0 +1,318 @@
+@import "tailwindcss";
+@source "../src";
+@import "tw-animate-css";
+@import 'leaflet/dist/leaflet.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * UNMAPPED design system v2
+ * Airbnb base (warm, editorial, generous space) + Uber interactions
+ * (precise typography, dense actions). Light by default + dark toggle.
+ * NEVER hardcode colors in components — extend tokens here.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 20px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Domain tokens */
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-cream: var(--cream);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-ink: var(--ink);
+  --color-graphite: var(--graphite);
+  --color-sand: var(--sand);
+  --color-sun: var(--sun);
+  --color-sky: var(--sky);
+  --color-grape: var(--grape);
+  --color-warn: var(--warn);
+
+  --color-node-self: var(--node-self);
+  --color-node-skill: var(--node-skill);
+  --color-node-people: var(--node-people);
+  --color-node-org: var(--node-org);
+  --color-node-event: var(--node-event);
+  --color-node-opportunity: var(--node-opportunity);
+  --color-edge: var(--edge);
+
+  --font-display: "DM Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  /* Light by default — Airbnb-warm cream base */
+  --radius: 0.875rem;
+
+  --background: oklch(0.995 0.005 80);
+  /* near-white with warmth */
+  --cream: oklch(0.975 0.012 80);
+  /* Airbnb cream */
+  --surface: oklch(1 0 0);
+  --surface-soft: oklch(0.97 0.008 80);
+  --foreground: oklch(0.18 0.02 270);
+  /* near-black ink */
+  --ink: oklch(0.14 0.015 270);
+  --graphite: oklch(0.32 0.012 270);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+
+  /* Primary: Airbnb-style coral. Confident, warm, recognizable. */
+  --coral: oklch(0.66 0.21 25);
+  --coral-soft: oklch(0.95 0.04 25);
+  --primary: var(--coral);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.96 0.008 80);
+  --secondary-foreground: var(--foreground);
+
+  --muted: oklch(0.96 0.005 80);
+  --muted-foreground: oklch(0.48 0.012 270);
+
+  /* Accent: airbnb mint for success/positive */
+  --mint: oklch(0.68 0.12 175);
+  --mint-soft: oklch(0.94 0.04 175);
+  --accent: oklch(0.96 0.008 80);
+  --accent-foreground: var(--foreground);
+
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.91 0.006 80);
+  --input: oklch(0.93 0.006 80);
+  --ring: oklch(0.66 0.21 25 / 40%);
+
+  /* Editorial palette */
+  --sand: oklch(0.92 0.04 75);
+  --sun: oklch(0.85 0.16 80);
+  --sky: oklch(0.78 0.1 230);
+  --grape: oklch(0.62 0.16 305);
+  --warn: oklch(0.72 0.16 55);
+
+  /* Node graph colors — soft, distinct */
+  --node-self: var(--coral);
+  --node-skill: var(--sun);
+  --node-people: var(--sky);
+  --node-org: var(--grape);
+  --node-event: oklch(0.7 0.16 15);
+  --node-opportunity: var(--mint);
+  --edge: oklch(0.6 0.01 270 / 30%);
+
+  /* Charts */
+  --chart-1: var(--coral);
+  --chart-2: var(--mint);
+  --chart-3: var(--sky);
+  --chart-4: var(--sun);
+  --chart-5: var(--grape);
+
+  /* Sidebar */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--coral);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0.008 80);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* Shadows — soft, layered, Airbnb-feeling */
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 4%);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 6%), 0 1px 2px oklch(0 0 0 / 4%);
+  --shadow-md: 0 6px 16px -4px oklch(0 0 0 / 10%), 0 2px 6px -2px oklch(0 0 0 / 6%);
+  --shadow-lg: 0 14px 32px -8px oklch(0 0 0 / 14%), 0 4px 10px -4px oklch(0 0 0 / 6%);
+  --shadow-pop: 0 18px 50px -12px oklch(0 0 0 / 18%);
+}
+
+.dark {
+  --background: oklch(0.16 0.012 270);
+  --cream: oklch(0.18 0.012 270);
+  --surface: oklch(0.2 0.012 270);
+  --surface-soft: oklch(0.23 0.012 270);
+  --foreground: oklch(0.96 0.008 80);
+  --ink: oklch(0.98 0.005 80);
+  --graphite: oklch(0.78 0.01 270);
+
+  --card: oklch(0.21 0.012 270);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.21 0.012 270);
+  --popover-foreground: var(--foreground);
+
+  --coral: oklch(0.72 0.2 25);
+  --coral-soft: oklch(0.32 0.08 25);
+  --primary: var(--coral);
+  --primary-foreground: oklch(0.14 0.012 270);
+
+  --secondary: oklch(0.24 0.012 270);
+  --secondary-foreground: var(--foreground);
+
+  --muted: oklch(0.24 0.012 270);
+  --muted-foreground: oklch(0.72 0.012 270);
+
+  --mint: oklch(0.74 0.13 175);
+  --mint-soft: oklch(0.3 0.06 175);
+  --accent: oklch(0.24 0.012 270);
+  --accent-foreground: var(--foreground);
+
+  --border: oklch(0.3 0.012 270);
+  --input: oklch(0.28 0.012 270);
+  --ring: oklch(0.72 0.2 25 / 50%);
+
+  --sand: oklch(0.32 0.04 75);
+  --sun: oklch(0.82 0.16 80);
+  --sky: oklch(0.74 0.12 230);
+  --grape: oklch(0.7 0.18 305);
+  --warn: oklch(0.78 0.18 55);
+
+  --edge: oklch(0.7 0.01 270 / 28%);
+
+  --sidebar: oklch(0.18 0.012 270);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--coral);
+  --sidebar-primary-foreground: oklch(0.14 0.012 270);
+  --sidebar-accent: oklch(0.24 0.012 270);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: oklch(0.3 0.012 270);
+
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 30%);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 40%);
+  --shadow-md: 0 6px 16px -4px oklch(0 0 0 / 50%);
+  --shadow-lg: 0 14px 32px -8px oklch(0 0 0 / 60%);
+  --shadow-pop: 0 18px 50px -12px oklch(0 0 0 / 70%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-coral) 22%, transparent);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+
+  /* Card — soft Airbnb-style surface */
+  .card-soft {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 200ms ease, transform 200ms ease;
+  }
+
+  .card-soft-hover:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  /* Sticky pill — Uber-inspired action surface */
+  .pill {
+    border-radius: 9999px;
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+    font-weight: 500;
+    transition: background 150ms ease, transform 150ms ease;
+  }
+
+  .pill-dark {
+    background: var(--color-ink);
+    color: var(--color-background);
+  }
+
+  .pill-dark:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Editorial number / metric */
+  .metric-num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  /* Eyebrow tag */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-muted-foreground);
+  }
+
+  /* Subtle dotted background */
+  .dot-bg {
+    background-image: radial-gradient(var(--color-border) 1px,
+        transparent 1px);
+    background-size: 22px 22px;
+  }
+}
