@@ -15,6 +15,58 @@ L.Icon.Default.mergeOptions({
 });
 
 // ============================================================
+// COUNTRY NAME MAPPING (GeoJSON name -> Display name)
+// ============================================================
+const COUNTRY_NAME_MAPPING: Record<string, string> = {
+  'United States of America': 'United States',
+  'USA': 'United States',
+  'United States': 'United States',
+  'U.S.A.': 'United States',
+  'UK': 'United Kingdom',
+  'United Kingdom': 'United Kingdom',
+  'Great Britain': 'United Kingdom',
+  'South Korea': 'South Korea',
+  'Republic of Korea': 'South Korea',
+  'Korea': 'South Korea',
+  'South Africa': 'South Africa',
+  'Republic of South Africa': 'South Africa',
+  'India': 'India',
+  'Republic of India': 'India',
+  'Canada': 'Canada',
+  'Germany': 'Germany',
+  'Federal Republic of Germany': 'Germany',
+  'France': 'France',
+  'French Republic': 'France',
+  'Brazil': 'Brazil',
+  'Federative Republic of Brazil': 'Brazil',
+  'Australia': 'Australia',
+  'Japan': 'Japan',
+  'Kenya': 'Kenya',
+  'Republic of Kenya': 'Kenya',
+  'Nigeria': 'Nigeria',
+  'Federal Republic of Nigeria': 'Nigeria',
+  'Ghana': 'Ghana',
+  'Republic of Ghana': 'Ghana',
+  'Ethiopia': 'Ethiopia',
+  'Federal Democratic Republic of Ethiopia': 'Ethiopia',
+  'Bangladesh': 'Bangladesh',
+  "People's Republic of Bangladesh": 'Bangladesh',
+  'Vietnam': 'Vietnam',
+  'Socialist Republic of Vietnam': 'Vietnam',
+  'Indonesia': 'Indonesia',
+  'Republic of Indonesia': 'Indonesia',
+  'Pakistan': 'Pakistan',
+  'Islamic Republic of Pakistan': 'Pakistan',
+  'Mexico': 'Mexico',
+  'United Mexican States': 'Mexico',
+};
+
+// Reverse mapping for looking up GeoJSON names
+const REVERSE_NAME_MAPPING: Record<string, string> = Object.fromEntries(
+  Object.entries(COUNTRY_NAME_MAPPING).map(([geoJsonName, displayName]) => [displayName, geoJsonName])
+);
+
+// ============================================================
 // DYNAMIC ECONOMETRIC DATA (loaded from real APIs)
 // ============================================================
 export let COUNTRY_ECONOMETRICS: Record<string, any> = {};
@@ -40,13 +92,14 @@ export async function loadEconometricData(focusId: string = 'global') {
         events_count: realData[country].events_count,
         repos_count: realData[country].repos_count,
         contributors_count: realData[country].contributors_count,
-        data_source: "world-developer-stats + World Bank",
+        data_source: "GitHub + World Bank",
       };
     }
   }
   
   COUNTRY_ECONOMETRICS = newData;
   console.log(`📊 Loaded econometric data for ${Object.keys(newData).length} countries (focus: ${focusId})`);
+  console.log("📊 Sample data:", Object.entries(newData).slice(0, 3));
   
   return COUNTRY_ECONOMETRICS;
 }
@@ -353,16 +406,27 @@ export function LeafletHeatMap({
   useEffect(() => {
     if (geoJsonData) {
       setLoading(false);
+      // Debug: log available GeoJSON country names
+      const features = geoJsonData.features || [];
+      const geoJsonNames = features.map((f: any) => f.properties?.name).filter(Boolean);
+      console.log("🌍 GeoJSON country names available:", geoJsonNames.slice(0, 10));
+      console.log("📊 Our data countries:", Object.keys(COUNTRY_ECONOMETRICS));
     } else {
       setLoading(false);
     }
   }, [geoJsonData]);
 
+  // Helper function to get display name from GeoJSON name
+  const getDisplayName = (geoJsonName: string): string => {
+    return COUNTRY_NAME_MAPPING[geoJsonName] || geoJsonName;
+  };
+
   const styleCountry = (feature: any) => {
-    const countryName = feature.properties?.name || feature.properties?.ADMIN;
-    const data = COUNTRY_ECONOMETRICS[countryName];
+    const geoJsonName = feature.properties?.name || feature.properties?.ADMIN;
+    const displayName = getDisplayName(geoJsonName);
+    const data = COUNTRY_ECONOMETRICS[displayName];
     const intensity = data?.intensity || 0;
-    const isUserCountry = userCountry === countryName;
+    const isUserCountry = userCountry === displayName;
     
     let fill = "var(--color-surface-soft)";
     let fillOpacity = 0.3;
@@ -377,8 +441,10 @@ export function LeafletHeatMap({
         g = parseInt(baseColor.slice(3, 5), 16);
         b = parseInt(baseColor.slice(5, 7), 16);
       }
-      fill = `rgba(${r}, ${g}, ${b}, ${0.3 + intensity * 0.5})`;
-      fillOpacity = 0.5 + intensity * 0.4;
+      // Make intensity more visible - darker for higher values
+      const alpha = Math.min(0.9, 0.3 + intensity * 0.6);
+      fill = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      fillOpacity = 0.6 + intensity * 0.3;
     }
     
     return {
@@ -391,27 +457,28 @@ export function LeafletHeatMap({
   };
 
   const onEachCountry = (feature: any, layer: L.Layer) => {
-    const countryName = feature.properties?.name || feature.properties?.ADMIN;
-    const data = COUNTRY_ECONOMETRICS[countryName];
+    const geoJsonName = feature.properties?.name || feature.properties?.ADMIN;
+    const displayName = getDisplayName(geoJsonName);
+    const data = COUNTRY_ECONOMETRICS[displayName];
     
     if (data) {
       layer.on({
         mouseover: (e) => {
           const ev = e.originalEvent;
           setHovered({
-            name: countryName,
+            name: displayName,
             data: data,
             x: ev.clientX,
             y: ev.clientY,
           });
-          layer.bindTooltip(countryName, { sticky: true, direction: 'top' }).openTooltip();
+          layer.bindTooltip(displayName, { sticky: true, direction: 'top' }).openTooltip();
         },
         mouseout: () => {
           setHovered(null);
           layer.closeTooltip();
         },
         click: () => {
-          if (onCountryClick) onCountryClick(countryName, data);
+          if (onCountryClick) onCountryClick(displayName, data);
         },
       });
     } else {
@@ -568,6 +635,13 @@ export function HeatMap({
     fetch("/data/countries.geojson")
       .then((res) => res.json())
       .then((data) => {
+        console.log("✅ GeoJSON loaded, checking USA in features...");
+        const features = data.features || [];
+        const usaFeature = features.find((f: any) => 
+          f.properties?.name?.toLowerCase().includes('united states') ||
+          f.properties?.name === 'USA'
+        );
+        console.log("USA feature in GeoJSON:", usaFeature?.properties?.name);
         setGeoJsonData(data);
         setLoading(false);
       })
@@ -656,7 +730,7 @@ export function SimpleHeatMap({ data = {}, height = 460 }: { data?: any; height?
           {Object.keys(COUNTRY_ECONOMETRICS).length} countries loaded
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Data from world-developer-stats + World Bank
+          Data from GitHub + World Bank APIs
         </p>
       </div>
     </div>
